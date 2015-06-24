@@ -1,0 +1,78 @@
+<script id="geoVert" type="vertex">
+	#version 100
+
+	precision highp float;
+	
+	attribute vec3 vertex;
+	attribute vec3 normal;
+	attribute vec2 uv;
+	attribute vec3 tangents;
+	attribute vec3 bitangents;
+	
+	uniform mat4 model, view, proj; 
+	uniform mat3 nMatrix;
+	
+	varying vec3 pos, norm, tangent, bitangent;
+	varying vec2 uvs;
+	
+	void main(){
+		//write out all the data for the different buffers
+		pos = (model*vec4(vertex, 1)).xyz;
+		norm = nMatrix*normal;
+		uvs = uv;
+		tangent = tangents;
+		bitangent = bitangents;
+		gl_Position = proj*view*model*vec4(vertex, 1);
+	}
+</script>
+
+<script id="geoFrag" type="fragment">
+	#version 100
+	#extension GL_EXT_draw_buffers : require
+	precision highp float;
+	
+	varying vec3 pos, norm, tangent, bitangent;
+	varying vec2 uvs;
+	
+	uniform vec3 color;
+	uniform bool useTexture, useNormal, useSpecular;// useOcclusion;
+	uniform sampler2D texture, normals, specMap;
+	uniform float specPow, specInten;
+	
+	void main(){
+		vec3 normal = normalize(norm);
+		vec4 finalColor = vec4(0,0,0,1);
+		float specPower = 0.0, specInt = 0.0;
+		
+		if(useTexture){
+			finalColor = texture2D(texture, uvs);
+			
+			if(useNormal){
+				mat3 tbn = mat3(tangent, bitangent, normal);
+				vec3 sampledNorm = texture2D(normals, uvs).xyz;
+				normal = tbn*sampledNorm;
+			}
+			
+			if(useSpecular){
+				vec2 specular = texture2D(specMap, uvs).xy;
+				specPower = specular.r;
+				specInt = specular.g;
+			}else{
+				specPower = specPow;
+				specInt = specInten;
+			}
+			
+			//if(useOcclusion){
+				
+			//}
+		}else{
+			finalColor = vec4(color, 1);
+			specPower = specPow;
+			specInt = specInten;
+		}
+		
+		gl_FragData[0] = vec4( finalColor.xyz, 1);
+		gl_FragData[1] = vec4( normal, specInt);
+		gl_FragData[2] = vec4( pos, specPower);
+	}
+</script>

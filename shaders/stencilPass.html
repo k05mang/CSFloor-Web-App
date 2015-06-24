@@ -1,0 +1,22 @@
+<script id="stencilVert" type="vertex">
+	#version 100
+
+	precision highp float;
+	
+	attribute vec3 vertex;
+	
+	uniform mat4 model, view, proj;
+	
+	void main(){
+		gl_Position = proj*view*model*vec4(vertex, 1);
+	}
+</script>
+
+<script id="stencilFrag" type="fragment">
+	#version 100
+	precision highp float;
+	
+	void main(){
+		
+	}
+</script>

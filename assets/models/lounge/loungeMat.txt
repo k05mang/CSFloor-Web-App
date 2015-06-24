@@ -1,0 +1,12 @@
+images/
+diffuse : brick_full.png;
+normal : brick_full_normal.png;
+&
+iami
+diffuse: carpet.png;
+&
+imim
+diffuse: ceiling_shadow.png;
+&
+asdasd
+diffuse: flat_wall.png;

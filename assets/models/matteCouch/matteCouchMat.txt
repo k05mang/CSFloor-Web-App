@@ -1,0 +1,7 @@
+asdsad
+diffuse: 96,44,30;
+specular power: 15;
+specular intensity: 2;
+&
+asd
+diffuse: light_wood.png;

@@ -1,0 +1,5 @@
+asd
+diffuse: lamp_shade.png;
+&
+asd
+diffuse: 30,30,30;

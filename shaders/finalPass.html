@@ -1,0 +1,35 @@
+<script id="finalVert" type="vertex">
+	#version 100
+
+	precision highp float;
+	
+	attribute vec3 vertex;
+	
+	void main(){
+		mat4 rotation = mat4(
+			1, 0, 0, 0,
+			0, 0, 1, 0,
+			0, -1, 0, 0,
+			0,0,0,1
+		);
+		gl_Position = rotation*vec4(vertex, 1);
+	}
+</script>
+
+<script id="finalFrag" type="fragment">
+	#version 100
+	#extension GL_EXT_draw_buffers : require
+	precision highp float;
+	
+	uniform vec2 screenSpace;
+	uniform sampler2D diffuse, light;
+	
+	void main(){
+		vec2 texCoords = gl_FragCoord.xy/screenSpace;
+		vec3 color = texture2D(diffuse, texCoords).xyz;
+		vec3 lighting = texture2D(light, texCoords).xyz;
+		
+		gl_FragColor = vec4( color*(lighting+.35), 1.0);
+		//gl_FragColor = vec4( lighting, 1.0);
+	}
+</script>

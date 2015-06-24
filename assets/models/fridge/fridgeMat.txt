@@ -1,0 +1,12 @@
+asd
+diffuse: 82,63,48;
+specular power: 14;
+specular intensity: 5;
+&
+asd
+diffuse: metal.png;
+specular power: 14;
+specular intensity: 5;
+&
+asd
+diffuse: fridge.png;

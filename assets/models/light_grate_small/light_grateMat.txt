@@ -1,0 +1,4 @@
+asd
+diffuse: metal.png;
+specular power: 14;
+specular intensity: 5;

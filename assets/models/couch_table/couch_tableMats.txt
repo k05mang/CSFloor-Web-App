@@ -1,0 +1,2 @@
+asdasdas
+diffuse: lounge_table.png;

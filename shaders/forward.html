@@ -1,0 +1,81 @@
+<script id="verts" type="vertex">
+	#version 100
+	
+	precision highp float;
+	
+	attribute vec3 vertex;
+	attribute vec3 normal;
+	attribute vec2 uv;
+	
+	uniform mat4 model, view, proj, lightVPMat; 
+	uniform mat3 nMatrix;
+	uniform vec3 lightPos;
+	
+	varying vec4 shadowCoord;
+	varying vec3 norm, lightVec;
+	varying vec2 uvs;
+	
+	void main(){
+		mat4 shadowBias = mat4(vec4(.5,0,0,0), vec4(0,.5,0,0), vec4(0,0,.5,0), vec4(.5,.5,.5,1));
+
+		vec4 vertInSpace = model*vec4(vertex, 1);
+		lightVec = lightPos-vertInSpace.xyz;
+		norm = nMatrix*normal;
+		uvs = uv;
+		
+		shadowCoord = shadowBias*lightVPMat*vertInSpace;
+		gl_Position = proj*view*vertInSpace;
+	}
+</script>
+
+<script id="frags" type="fragment">
+	#version 100
+	
+	precision highp float;
+	
+	varying vec4 shadowCoord;
+	varying vec3 norm, lightVec;
+	varying vec2 uvs;
+	
+	uniform float cutOff, atten, intensity;
+	uniform vec3 color;
+	uniform bool useTexture;
+	uniform sampler2D image, shadowText;
+	
+	//gl_FragData[n] = the nth framebuffer attachment to write out to for multitarget rendering
+	
+	float computeSpotLight(vec3 lightNorm, vec3 normal, float shadowFact, float ambient){
+		float result;
+		if(dot(vec3(0,-1,0), -lightNorm) > cutOff){
+			float distance = length(lightVec);
+			float attenuation = 1.0/(1.0+atten*(distance*distance));
+			float diffuse = max(dot(normal, lightNorm), 0.0);
+			result = shadowFact*diffuse*attenuation+ambient;
+		}else{
+			result = ambient;
+		}
+		return result*intensity;
+	}
+	
+	void main(){
+		vec3 normal = normalize(norm);
+		vec3 lightNorm = normalize(lightVec);
+		
+		float shadowSample = texture2DProj(shadowText, shadowCoord.xyw).r;
+		float shadowFact = 1.0;
+		
+		if(shadowSample < (shadowCoord.z-.0005)/shadowCoord.w){
+			shadowFact = 0.0;
+		}
+		
+		vec4 finalColor = vec4(0,0,0,1);
+		if(useTexture){
+			finalColor = texture2D(image, uvs);
+		}else{
+			finalColor = vec4(color, 1);
+		}
+		
+		//gl_FragColor = vec4( computeSpotLight(lightNorm, normal, shadowFact, .35)*finalColor.xyz, 1);
+		gl_FragColor = vec4( vec3(finalColor.x), 1);
+	}
+</script>

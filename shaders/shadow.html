@@ -1,0 +1,24 @@
+<script id="shadowVert" type="vertex">
+	#version 100
+
+	precision highp float;
+	
+	attribute vec3 vertex;
+	
+	uniform mat4 model, vpMat; 
+	
+	void main(){
+		gl_Position = vpMat*model*vec4(vertex, 1);
+	}
+</script>
+
+<script id="shadowFrag" type="fragment">
+	#version 100
+	#extension GL_EXT_draw_buffers : require
+
+	precision highp float;
+	
+	void main(){
+
+	}
+</script>

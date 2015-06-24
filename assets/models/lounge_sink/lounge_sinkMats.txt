@@ -1,0 +1,9 @@
+asdas
+diffuse: counter_top.png;
+specular power: .5;
+specular intensity: .6;
+&
+asad
+diffuse: metal.png;
+specular power: 14;
+specular intensity: 5;

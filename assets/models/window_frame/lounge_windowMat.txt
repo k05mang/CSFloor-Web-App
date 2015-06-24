@@ -1,0 +1,4 @@
+asd
+diffuse: 82,52,36;
+specular power: 10;
+specular intensity: 2;

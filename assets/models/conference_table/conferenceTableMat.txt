@@ -1,0 +1,4 @@
+asd
+diffuse: conference_table.png;
+specular power: 600;
+specular intensity: 25;

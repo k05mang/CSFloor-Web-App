@@ -1,0 +1,9 @@
+qweqwe
+diffuse: loungeTable.png;
+specular power: 100;
+specular intensity: 2.5;
+&
+asd
+diffuse: counter_top.png;
+specular power: 12;
+specular intensity: 5;

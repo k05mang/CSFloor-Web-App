@@ -1,0 +1,5 @@
+adeae
+diffuse: lounge_office_doors.png;
+normal: lounge_office_doors_normal.png;
+specular power: 12;
+specular intensity: .6;

@@ -1,0 +1,4 @@
+ads
+diffuse: 16,39,56;
+specular power: .5;
+specular intensity: .3;

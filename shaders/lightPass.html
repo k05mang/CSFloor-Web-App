@@ -1,0 +1,96 @@
+<script id="lightVert" type="vertex">
+	#version 100
+
+	precision highp float;
+	
+	attribute vec3 vertex;
+	
+	uniform mat4 model, view, proj;
+	
+	void main(){
+		gl_Position = proj*view*model*vec4(vertex, 1);
+	}
+</script>
+
+<script id="lightFrag" type="fragment">
+	#version 100
+	#extension GL_EXT_draw_buffers : require
+	precision highp float;
+	
+	uniform float intensity, atten, radius, cutOff;
+	uniform vec3 lightColor, lightPos, eye;
+	uniform vec2 screenSpace;
+	uniform sampler2D position, normals, shadow;
+	uniform mat4 lightVPMat;
+	uniform bool useShadow, isPointLight;
+	
+	//gl_FragData[n] = the nth framebuffer attachment to write out to for multitarget rendering
+	
+	vec4 computeLight(vec3 lightNorm, vec3 normal, vec3 lightVec, vec3 viewVec, float specPower, float specInt, float shadowFact){
+		float diffuse = max(dot(normal, lightNorm), 0.0);
+		float distance = length(lightVec);
+		
+		float attenuation = atten;
+		if(!isPointLight){
+			vec3 lightDir = vec3(0,1,0);
+			float fallOff = dot(lightDir, lightNorm);
+			attenuation = atten*(fallOff-cutOff);
+		}else{
+			attenuation = atten*(distance/radius);
+		}
+		
+		//specular reflection
+		vec3 halfVec = normalize(viewVec+lightNorm);
+		float spec = specInt*pow(max(dot(halfVec, normal), 0.0), specPower);
+		
+		return vec4( (diffuse+spec)*attenuation*lightColor*intensity*shadowFact, 1.0);
+	}
+	
+	void main(){
+		vec2 texCoords = gl_FragCoord.xy/screenSpace;
+		
+		//get the normal and position for the current fragment from the textures
+		vec4 norm = texture2D(normals, texCoords);
+		vec4 positions = texture2D(position, texCoords);
+		
+		//get just the normal and position
+		vec3 normal = norm.xyz;
+		vec3 pos = positions.xyz;
+		
+		//calculate the vector of the light from the fragment to the light
+		//and normalize it into a separate variable for use in lighting calculations
+		vec3 lightVec = lightPos - pos;
+		vec3 lightNorm = normalize(lightVec);
+		
+		//get the stored specular components from the texture samples
+		float specPower = positions.w;
+		float specInt = norm.w;
+		
+		float shadowFact = 1.0;
+		//this is here in case we are processing a light that doesn't have a shadow map
+		if(useShadow){
+			vec4 shadowCoord = lightVPMat*vec4(pos, 1.0);
+			float bias = .0005/shadowCoord.w;
+			shadowCoord /= shadowCoord.w;
+			
+			
+			shadowCoord.xyz = shadowCoord.xyz*.5+.5;
+			//shadowCoord.xyz = shadowCoord.xyz*vec3(.5)+vec3(.5);
+			//shadowCoord = shadowCoord*vec4(.5)+vec4(.5);
+			
+			float shadowSample = texture2D(shadow, shadowCoord.xy).r;
+			
+			//if(shadowSample < shadowCoord.z){
+			//	shadowFact = 0.0;
+			//}
+			
+			if(shadowSample < (shadowCoord.z-bias)){
+				shadowFact = 0.5;
+			}
+		}
+		
+		gl_FragData[3] = computeLight(lightNorm, normal, lightVec, normalize(eye-pos), specPower, specInt, shadowFact);
+		//gl_FragData[3] = vec4( normal, 1.0);
+		//gl_FragData[3] = vec4( vec3(shadowSample), 1.0);
+	}
+</script>

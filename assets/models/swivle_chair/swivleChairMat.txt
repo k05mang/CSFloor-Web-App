@@ -1,0 +1,5 @@
+asd
+diffuse: couch_pattern.png;
+&
+asd
+diffuse: 45,45,45;
